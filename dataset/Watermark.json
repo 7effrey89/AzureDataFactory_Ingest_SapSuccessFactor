@@ -1,0 +1,35 @@
+{
+	"name": "Watermark",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureSqlDatabase1",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "ETLConfig"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "tableName",
+				"type": "varchar"
+			},
+			{
+				"name": "schemaName",
+				"type": "varchar"
+			},
+			{
+				"name": "lastLoad",
+				"type": "datetime",
+				"precision": 23,
+				"scale": 3
+			}
+		],
+		"typeProperties": {
+			"schema": "etl",
+			"table": "watermark"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

@@ -1,0 +1,29 @@
+{
+	"name": "JDEE1",
+	"properties": {
+		"description": "Collection of functions",
+		"type": "UDFLibrary",
+		"typeProperties": {
+			"sources": [],
+			"sinks": [],
+			"transformations": [],
+			"scriptLines": [
+				"JulianDateToDate(number) as date = iif(i1==0,",
+				"    toDate(\"1900-01-01\"),",
+				"    iif(length(toString(i1))==6, ",
+				"        addDays(toDate(toString(2000+toInteger(substring(toString(i1),2,2)))+\"-1-1\"),toInteger(right(toString(i1),3))-1),",
+				"        addDays(toDate(toString(1900+toInteger(substring(toString(i1),1,2)))+\"-1-1\"),toInteger(right(toString(i1),3))-1))",
+				"),",
+				"toDateTimeFormat(number) as timestamp = iif(i1==0,\r",
+				"    toTimestamp(\"1900-01-01 00:00:00\", \"yyyy-MM-dd HH:mm:ss\"),\r",
+				"    iif(length(toString(i1))==5,\r",
+				"        toTimestamp(concat(\"1900-01-01 \",\"0\",left(toString(i1), 1),\":\",substring(toString(i1), 2, 2),\":\",right(toString(i1), 2)), \"yyyy-MM-dd HH:mm:ss\"),\r",
+				"        toTimestamp(concat(\"1900-01-01 \",left(toString(i1), 2),\":\",substring(toString(i1), 3, 2),\":\",right(toString(i1), 2)), \"yyyy-MM-dd HH:mm:ss\")\r",
+				"    )\r",
+				"),",
+				"toYYYYMM(date) as string = concat(toString(year(i1)),toString(month(i1))),",
+				"toTrim(string) as string = trim(i1)"
+			]
+		}
+	}
+}

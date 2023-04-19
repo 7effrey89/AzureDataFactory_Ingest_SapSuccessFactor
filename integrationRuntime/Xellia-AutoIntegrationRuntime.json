@@ -1,0 +1,17 @@
+{
+	"name": "Xellia-AutoIntegrationRuntime",
+	"properties": {
+		"type": "Managed",
+		"typeProperties": {
+			"computeProperties": {
+				"location": "Germany West Central",
+				"dataFlowProperties": {
+					"computeType": "General",
+					"coreCount": 8,
+					"timeToLive": 10,
+					"cleanup": false
+				}
+			}
+		}
+	}
+}

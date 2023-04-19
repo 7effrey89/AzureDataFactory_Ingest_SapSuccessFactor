@@ -1,0 +1,9 @@
+{
+	"name": "SuccessFactorDemo",
+	"location": "westeurope",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "c71d61c2-4d36-4714-80da-6a0ef7bac4fc",
+		"tenantId": "16b3c013-d300-468d-ac64-7eda0820b6d3"
+	}
+}

@@ -1,0 +1,360 @@
+{
+	"name": "SCSFCTR_Generic_Pipeline",
+	"properties": {
+		"activities": [
+			{
+				"name": "GetAssertion",
+				"type": "WebActivity",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"url": "https://api012.successfactors.eu/oauth/idp",
+					"method": "POST",
+					"headers": {
+						"Content-Type": "application/x-www-form-urlencoded"
+					},
+					"body": {
+						"value": "client_id=@{pipeline().parameters.client_id}&user_id=@{pipeline().parameters.user_id}&token_url=@{pipeline().parameters.token_url}&private_key=@{pipeline().parameters.private_key}",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "GetOAuthToken",
+				"type": "WebActivity",
+				"dependsOn": [
+					{
+						"activity": "GetAssertion",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"url": "https://api012.successfactors.eu/oauth/token",
+					"method": "POST",
+					"headers": {
+						"Content-Type": "application/x-www-form-urlencoded"
+					},
+					"body": {
+						"value": "@concat('client_id=',pipeline().parameters.client_id,'&company_id=',pipeline().parameters.company_id,'&grant_type=urn:ietf:params:oauth:grant-type:saml2-bearer&assertion=',activity('GetAssertion').output.Response)",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Sink As Json",
+				"description": "Needed to flatten the json to sink it properly in tabular format",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "GetOAuthToken",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "JsonTransformation",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "Set filename output",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "RestSource",
+						"httpRequestTimeout": "00:01:40",
+						"requestInterval": "00.00:00:00.010",
+						"requestMethod": "GET",
+						"additionalHeaders": {
+							"Authorization": {
+								"value": "@concat('Bearer ',activity('GetOauthToken').output.access_token)",
+								"type": "Expression"
+							}
+						},
+						"paginationRules": {
+							"supportRFC5988": "true"
+						}
+					},
+					"sink": {
+						"type": "JsonSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "JsonWriteSettings"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"value": "@json(activity('JsonTransformation').output.firstRow.json_output)",
+						"type": "Expression"
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "SapSuccessFactorTable",
+						"type": "DatasetReference",
+						"parameters": {
+							"TableName": {
+								"value": "@pipeline().parameters.srcTableName",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "JsonDataSet_Specific",
+						"type": "DatasetReference",
+						"parameters": {
+							"container": {
+								"value": "output",
+								"type": "Expression"
+							},
+							"folder": {
+								"value": "SapSuccessFactor/@{pipeline().parameters.srcTableName}",
+								"type": "Expression"
+							},
+							"filename": {
+								"value": "@{variables('fileName')}",
+								"type": "Expression"
+							}
+						}
+					}
+				]
+			},
+			{
+				"name": "Sink in Staging Table in Azure SQL DB",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Sink As Json",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "JsonSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "JsonReadSettings"
+						}
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"preCopyScript": {
+							"value": "TRUNCATE TABLE @{pipeline().parameters.stgSchemaName}.@{pipeline().parameters.stgTableName}",
+							"type": "Expression"
+						},
+						"writeBehavior": "insert",
+						"sqlWriterUseTableLock": false,
+						"disableMetricsCollection": false
+					},
+					"enableStaging": true,
+					"stagingSettings": {
+						"linkedServiceName": {
+							"referenceName": "AzureDataLakeStorage2",
+							"type": "LinkedServiceReference"
+						},
+						"path": "staging"
+					},
+					"enableSkipIncompatibleRow": false
+				},
+				"inputs": [
+					{
+						"referenceName": "JsonDataSet_Specific",
+						"type": "DatasetReference",
+						"parameters": {
+							"container": "output",
+							"folder": {
+								"value": "SapSuccessFactor/@{pipeline().parameters.srcTableName}",
+								"type": "Expression"
+							},
+							"filename": {
+								"value": "@variables('fileName')",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "AzureSqlDestinationTable",
+						"type": "DatasetReference",
+						"parameters": {
+							"SchemaName": {
+								"value": "@pipeline().parameters.stgSchemaName",
+								"type": "Expression"
+							},
+							"TableName": {
+								"value": "@pipeline().parameters.stgTableName",
+								"type": "Expression"
+							}
+						}
+					}
+				]
+			},
+			{
+				"name": "JsonTransformation",
+				"description": "Transforms the Json Output by flattening and rename columns",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderStoredProcedureName": "[etl].[sp_getColumnMapping_SAP_SuccessFactor]",
+						"storedProcedureParameters": {
+							"schema_name": {
+								"type": "String",
+								"value": {
+									"value": "@pipeline().parameters.baseSchemaName",
+									"type": "Expression"
+								}
+							},
+							"table_name": {
+								"type": "String",
+								"value": {
+									"value": "@pipeline().parameters.baseTableName",
+									"type": "Expression"
+								}
+							}
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "Watermark",
+						"type": "DatasetReference"
+					}
+				}
+			},
+			{
+				"name": "Set filename output",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "fileName",
+					"value": {
+						"value": "@{string(guid())}.json",
+						"type": "Expression"
+					}
+				}
+			}
+		],
+		"parameters": {
+			"srcTableName": {
+				"type": "string",
+				"defaultValue": "User"
+			},
+			"stgSchemaName": {
+				"type": "string",
+				"defaultValue": "STG_SCSFCTR"
+			},
+			"stgTableName": {
+				"type": "string",
+				"defaultValue": "USER"
+			},
+			"baseSchemaName": {
+				"type": "string",
+				"defaultValue": "SRC_SCSFCTR"
+			},
+			"baseTableName": {
+				"type": "string",
+				"defaultValue": "USER"
+			},
+			"client_id": {
+				"type": "string",
+				"defaultValue": "INSERT_YOUR_CLIENT_ID"
+			},
+			"user_id": {
+				"type": "string",
+				"defaultValue": "INSERT_YOUR_USER_ID"
+			},
+			"token_url": {
+				"type": "string",
+				"defaultValue": "https://api012.successfactors.eu/oauth/token"
+			},
+			"private_key": {
+				"type": "string",
+				"defaultValue": "INSERT_YOUR_PRIVATE_KEY"
+			},
+			"company_id": {
+				"type": "string",
+				"defaultValue": "INSERT_YOUR_COMPANY_ID"
+			}
+		},
+		"variables": {
+			"return": {
+				"type": "String"
+			},
+			"assertion": {
+				"type": "String"
+			},
+			"currentTime": {
+				"type": "String"
+			},
+			"fileName": {
+				"type": "String"
+			}
+		},
+		"folder": {
+			"name": "SAP SuccessFactors"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-03-30T20:42:20Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

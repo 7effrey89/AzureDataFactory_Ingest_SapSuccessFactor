@@ -1,0 +1,101 @@
+{
+	"name": "SCSFCTR_master",
+	"properties": {
+		"activities": [
+			{
+				"name": "ForEach1",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "Get TableList",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('Get TableList').output.value",
+						"type": "Expression"
+					},
+					"isSequential": false,
+					"activities": [
+						{
+							"name": "Execute SCSFCTR Pipeline",
+							"type": "ExecutePipeline",
+							"dependsOn": [],
+							"userProperties": [],
+							"typeProperties": {
+								"pipeline": {
+									"referenceName": "SCSFCTR_Generic_Pipeline",
+									"type": "PipelineReference"
+								},
+								"waitOnCompletion": false,
+								"parameters": {
+									"srcTableName": {
+										"value": "@item().srcTableName",
+										"type": "Expression"
+									},
+									"stgSchemaName": {
+										"value": "@item().stgSchemaName",
+										"type": "Expression"
+									},
+									"stgTableName": {
+										"value": "@item().stgTableName",
+										"type": "Expression"
+									},
+									"baseSchemaName": {
+										"value": "@item().baseSchemaName",
+										"type": "Expression"
+									},
+									"baseTableName": {
+										"value": "@item().baseTableName",
+										"type": "Expression"
+									}
+								}
+							}
+						}
+					]
+				}
+			},
+			{
+				"name": "Get TableList",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": "select * from etl.watermark where isEnabled=1 AND srcSystem='SCSFCTR'  AND destinationDB = 'DEV_ADF_RL_DB'",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "Watermark",
+						"type": "DatasetReference"
+					},
+					"firstRowOnly": false
+				}
+			}
+		],
+		"variables": {
+			"fileName": {
+				"type": "String"
+			}
+		},
+		"folder": {
+			"name": "SAP SuccessFactors"
+		},
+		"annotations": [],
+		"lastPublishTime": "2023-03-30T20:42:21Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

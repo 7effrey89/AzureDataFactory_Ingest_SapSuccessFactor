@@ -1,0 +1,27 @@
+{
+	"name": "SapSuccessFactorTable",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "SAP SuccessFactor",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"TableName": {
+				"type": "string"
+			}
+		},
+		"folder": {
+			"name": "UniversalDatasets"
+		},
+		"annotations": [],
+		"type": "RestResource",
+		"typeProperties": {
+			"relativeUrl": {
+				"value": "@concat('odata/v2/',dataset().TableName,'?$format=JSON')",
+				"type": "Expression"
+			}
+		},
+		"schema": []
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}
