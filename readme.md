@@ -14,7 +14,4 @@ Once completed you should be able to see a few pipelines and other necessary stu
 ## Video Materials
 This demo is based on the following videos:
 - Part1: https://youtu.be/lm2kqTaXatI
-- Part2: https://youtu.be/xxxxxxxxx
-
-
-
+- Part2: https://youtu.be/Lt1FO8NsUkQ
