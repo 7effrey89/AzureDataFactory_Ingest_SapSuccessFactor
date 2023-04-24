@@ -1,7 +1,0 @@
-{
-	"name": "Xellia-AzureIntegrationRuntime",
-	"properties": {
-		"type": "SelfHosted",
-		"description": "Xellia OnPrem-Azure-IntegrationRuntime"
-	}
-}
