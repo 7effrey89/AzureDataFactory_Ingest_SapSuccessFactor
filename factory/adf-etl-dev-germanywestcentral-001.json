@@ -1,9 +1,0 @@
-{
-	"name": "adf-etl-dev-germanywestcentral-001",
-	"location": "germanywestcentral",
-	"identity": {
-		"type": "SystemAssigned",
-		"principalId": "c20f3d4b-cc75-4aaa-82bd-5917772f1e52",
-		"tenantId": "7224037f-b045-4b80-889b-0e1b223f9c75"
-	}
-}
