@@ -12,24 +12,35 @@ These are the high level steps which need to be executed :
 3. Generate an oAuth token.
 4. Use the generated token to call oData APIs to extract data
 
-In Azure Date Factory the pipeline looks as follows :
+In Azure Date Factory the overall pipeline looks as follows :
 
 <img src="pictures/OverallPipeline.jpg">
 
+The `GetAssertion` and `GetOAuthToken` activities are used to authenticate against SAP SuccessFactors. The actual extraction is done in the `Copy Data` steps. Since we want to extract multiple entities, both source and sink datasets and also the mappings towards a SQL database are parameterized. These parameters are retrieved in the 'JsonTransformation' and 'Set filename output' activities.
+
+Since we also want to extract multiple SAP SuccessFactor entities, this parameterid pipeline is capsulated in a `For Each` loop to iterate over the different entities.
+The list of entities and mappings is stored in a SQL DB. The content of the DB is retrieved in the `GetTableList` activity which reads out the DB using SQL.
+
+<img src="pictures/ForEachLoop.jpg">
+
+>Note: In this blog we focus on the authentication and data extraction part. Details on how to implement the table, SQL Queries, mappings,  ... are not explained in detail. They are however contained in the included sample pipeline, datasets and sql scripts.
+
+>Note: One might also consider to move to Authentication part out of the `for each` loop.
 
 ### Step 1-3 : Authentication
 
-The following figure gives an overview of the authentication flow : 
+The following figure gives an overview of the authentication flow :
 
 <img src="pictures/oAuthFlow.png">
 
-For more information, please refer to [SAP Successfactors - Authentication Using OAuth 2.0](https://help.sap.com/docs/SAP_SUCCESSFACTORS_PLATFORM/d599f15995d348a1b45ba5603e2aba9b/d9a9545305004187986c866de2b66987.html)
+For more information on each individual step, please refer to [SAP Successfactors - Authentication Using OAuth 2.0](https://help.sap.com/docs/SAP_SUCCESSFACTORS_PLATFORM/d599f15995d348a1b45ba5603e2aba9b/d9a9545305004187986c866de2b66987.html)
 
 #### Register your Client Application
 In this step you need to register your client application, which is Azure Data Factory, in SAP SuccessFactors. This step is handled within SAP SuccessFactors itself.
 
 This step will result in an `API Key`, `client_id`. You can also associate a user with Azure Data Factory.
 For more information, please refer to [SAP Successfactors - Registering your oAuth2 Client Application](https://help.sap.com/docs/SAP_SUCCESSFACTORS_PLATFORM/d599f15995d348a1b45ba5603e2aba9b/6b3c741483de47b290d075d798163bc1.html). 
+
 #### Obtain a SAML assertion
 In this step you generate a SAML assertion document, which will be used to request the access token.
 You can obtain a SAML assertion either from your trusted IdP (recommended) or using the offline SAML generator provided by SAP SuccessFactors.
@@ -37,7 +48,7 @@ For more information see : [SAP SuccessFactors - Generating a SAML Assertion](ht
 
 > Note : we used the SAP SuccessFactors built-in Identity Provided `/oauth/idp`.
   
-The HTTP Request is built as follows :
+The HTTP Request looks as follows :
 ```
 ### Get SAML Assertion
 # @name getSAMLAssertion
@@ -152,20 +163,18 @@ Since we want to extract multiple SAP SuccessFactors entities, the source and si
 >Note: this is just a sample pipeline. Feel free to change and optimize.
 >Hint: In our case the Authorization steps are with the `For-Each` loop, but one might consider to move these steps outside of the loop.
 
-## Prerequisitess
-To implement the example pipeline, you need to have access to an Azure Data Factory instance and a sql database (e.g. azure sql database). 
-It's highly recommended to deploy a new data factory for this demo.
+## Example Flow Implementation
+To implement the example pipeline, you need to have access to an Azure Data Factory instance and a sql database (e.g. azure sql database).
+It's highly recommended to deploy a new data factory for this example flow.
 
->Note : You can probably also use Synapse pipelines, we however didn't test this setup.
+>Note : You can also use Synapse pipelines, the steps are similar.
+### Configuration Steps
+1. Connect a freshly deployed Azure Data Factory to a fork of this repo.
+Once completed you should be able to see the pipelines, datasets and other necessary objects needed by the example flow.
 
+2. In the repo under the [SQL Setup](\SQL setup) folder, execute the two sql scripts against your sql instance. These scripts will populate some meta data tables and some sample data for the example flow.
 
-## Configuration
-1. Connect a freshly deployed Azure Data Factory to a fork of this repo. 
-Once completed you should be able to see a few pipelines and other necessary objects needed by the demo. 
-
-2. In the repo under the "SQL Setup" folder, Execute the two sql scripts against your sql instance. These scripts will populate some meta data tables and some sample data that will be used during the demo.
-
-## Video Materials
-This example flow is based on the following videos:
+## Related Video Materials
+This example flow is explained in the following videos:
 - Part1: https://youtu.be/lm2kqTaXatI
 - Part2: https://youtu.be/Lt1FO8NsUkQ
