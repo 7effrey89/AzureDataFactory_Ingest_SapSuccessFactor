@@ -58,7 +58,7 @@
 				}
 			},
 			{
-				"name": "Sink As Json",
+				"name": "Extract SAP SuccessFactorisData to JSON",
 				"description": "Needed to flatten the json to sink it properly in tabular format",
 				"type": "Copy",
 				"dependsOn": [
@@ -158,7 +158,7 @@
 				"type": "Copy",
 				"dependsOn": [
 					{
-						"activity": "Sink As Json",
+						"activity": "Extract SAP SuccessFactorisData to JSON",
 						"dependencyConditions": [
 							"Succeeded"
 						]
