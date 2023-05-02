@@ -85,7 +85,7 @@ The parameters are defined at pipeline level.
 The generated SAML Assertion can then be used for oAuth authentication.
 
 You can obtain the oAuth Access token as follows :
-```json
+```
 ### Get OAuthToken
 # @name getOAuthToken
 @assertion = {{getSAMLAssertion.response.body.*}}
@@ -106,6 +106,7 @@ The access token can be found in the response body :
 ```
 
 In ADF this is also modeled as a `Web`Activity, following the `GetAssertion`.
+
 <img src="pictures/WebGetOAuthToken.jpg">
 
 ##### Get oAuth Token - Web Activity Settings</b>
@@ -134,40 +135,38 @@ In Azure Data Factory the data extraction is modeled using the `Copy Data` activ
 <img src="pictures/CopyDataActivity.jpg"> 
 
 #### Copy Activity - Source Settings
-<img src="pictures/CopyActivitySettings.jpg">
-
-#### Copy Activity - Sink Settings
-<img src="pictures/CopySinkSettings.jpg">
-
-In our case, we extracted the SAP SuccessFactors data to a json format.
-
-Since in the end we want to extract multiple SAP SuccessFactor Entities, the source and sink data set are parameterized. (In our case the entities to be extracted are stored in a SQL DB.)
-
-* SourceDataSet : this is the SAP SuccessFactors oData API
-    * `BaseURL = https://api012.successfactors.eu/` or other relevant API access point provided by SAP
-    * `RelativeURL = @concat('odata/v2/',dataset().TableName,'?$format=JSON')`. The `dataset().TableName` is the entitieset to be extracted, eg. `User`, `EmpJob`, ... . This information is retrieved from a SQL Table.
-* SinkDataSet : the json file to write the data to. The JSON filename was parameterized.
+This relates to the SAP SuccessFactors oData API. Since we want to extract multiple SAP SuccessFactor Entities, the source (and also the sink) data set are parameterized. 
+* `BaseURL = https://api012.successfactors.eu/` or other relevant API access point provided by SAP
+* `RelativeURL = @concat('odata/v2/',dataset().TableName,'?$format=JSON')`. The `dataset().TableName` is the entityset to be extracted, eg. `User`, `EmpJob`, ... . This information is retrieved from a SQL Table.
+* `Request Method = Get`
 * Additional Headers : here we need to add the `Authorization` header with the `Bearer` access token retrieved from the previous step.
 
     `Authorization = @concat('Bearer ',activity('GetOauthToken').output.access_token)`
 
     >Note: The `activity('GetOauthToken')` refers to the previous step.
 
+<img src="pictures/CopyActivitySettings.jpg">
+
+#### Copy Activity - Sink Settings
+* This is the json file to write the data to. The JSON filename was parameterized.
+
+<img src="pictures/CopySinkSettings.jpg">
+
 ### Extracting Multiple Entities
-Since we want to extract multiple SAP SuccessFactors entities, the source and sink datasets were parameterized. These paramets are retrieved at the beginning of the pipeline using a Lookup activity. Here a select statement is retrieved to retrieve the parameters. This table is then used in a `ForEach` activity to loop over the different entities to be extracted.
+Since we want to extract multiple SAP SuccessFactors entities, the source and sink datasets were parameterized. These parameters are retrieved at the beginning of the pipeline using a `Lookup` activity. Here a select statement is used to retrieve a table containing the different parameters per entity. This parameter table is then used in a `ForEach` activity to loop over the different entities to be extracted.
 
 <img src="pictures/GetTableListSettings.jpg">
 
 <img src="pictures/GetMultipleEntities.jpg">
 
->Note: this is just a sample pipeline. Feel free to change and optimize.
+>Note: this is just a sample pipeline. Feel free to change and optimize.\
 >Hint: In our case the Authorization steps are with the `For-Each` loop, but one might consider to move these steps outside of the loop.
 
 ## Example Flow Implementation
-To implement the example pipeline, you need to have access to an Azure Data Factory instance and a sql database (e.g. azure sql database).
-It's highly recommended to deploy a new data factory for this example flow.
+To implement the example pipeline, you need to have access to an Azure Data Factory instance and a sql database (e.g. azure sql database).\
+It's highly recommended to deploy a new data factory for this example flow.\
+You can also use Synapse pipelines, the steps are similar.
 
->Note : You can also use Synapse pipelines, the steps are similar.
 ### Configuration Steps
 1. Connect a freshly deployed Azure Data Factory to a fork of this repo.
 Once completed you should be able to see the pipelines, datasets and other necessary objects needed by the example flow.
@@ -176,5 +175,5 @@ Once completed you should be able to see the pipelines, datasets and other neces
 
 ## Related Video Materials
 This example flow is explained in the following videos:
-- Part1: https://youtu.be/lm2kqTaXatI
-- Part2: https://youtu.be/Lt1FO8NsUkQ
+* Part1: https://youtu.be/lm2kqTaXatI
+* Part2: https://youtu.be/Lt1FO8NsUkQ
