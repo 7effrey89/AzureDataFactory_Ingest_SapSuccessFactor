@@ -58,7 +58,7 @@
 				}
 			},
 			{
-				"name": "Extract SAP SuccessFactorisData to JSON",
+				"name": "Extract SAP SuccessFactorsData to JSON",
 				"description": "Needed to flatten the json to sink it properly in tabular format",
 				"type": "Copy",
 				"dependsOn": [
@@ -75,7 +75,7 @@
 						]
 					},
 					{
-						"activity": "Set filename output",
+						"activity": "Set OutpuFileName",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -158,7 +158,7 @@
 				"type": "Copy",
 				"dependsOn": [
 					{
-						"activity": "Extract SAP SuccessFactorisData to JSON",
+						"activity": "Extract SAP SuccessFactorsData to JSON",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -281,7 +281,7 @@
 				}
 			},
 			{
-				"name": "Set filename output",
+				"name": "Set OutpuFileName",
 				"type": "SetVariable",
 				"dependsOn": [],
 				"userProperties": [],
