@@ -1,0 +1,46 @@
+
+@client_id=<your clientid>
+@comany_id=<your companyid>
+@user_id=<your userid>
+@token_url=https://api012.successfactors.eu/oauth/token
+@private_key=<your private key>
+
+
+### Get SAML Assertion
+# @name getSAMLAssertion
+POST https://api012.successfactors.eu/oauth/idp
+?client_id={{client_id}}
+&user_id={{user_id}}
+&token_url={{token_url}}
+&private_key={{private_key}}
+Content-Type: application/x-www-form-urlencoded
+
+
+### Get OAuthToken
+# @name getOAuthToken
+@assertion = {{getSAMLAssertion.response.body.*}}
+POST {{token_url}}
+Content-Type: application/x-www-form-urlencoded
+
+company_id={{comany_id}}&client_id={{client_id}}&company_id={{comany_id}}&grant_type=urn:ietf:params:oauth:grant-type:saml2-bearer&assertion={{assertion}}
+
+
+### Get UserSchema
+# @name getUserSchema
+@access_token = {{getOAuthToken.response.body.access_token}}
+@token_type = {{getOAuthToken.response.body.token_type}}
+GET https://api012.successfactors.eu/odata/v2/Entity('User')?$format=json
+Authorization: Bearer {{access_token}}
+
+
+### Get User List
+# @name getUserList
+@access_token = {{getOAuthToken.response.body.access_token}}
+@token_type = {{getOAuthToken.response.body.token_type}}
+GET https://api012.successfactors.eu/odata/v2/User?$format=json&$top=5
+Authorization: Bearer {{access_token}}
+
+
+
+
+
