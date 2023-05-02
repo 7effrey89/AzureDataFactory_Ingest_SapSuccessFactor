@@ -75,7 +75,7 @@
 						]
 					},
 					{
-						"activity": "Set filename output",
+						"activity": "Set OutpuFileName",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -281,7 +281,7 @@
 				}
 			},
 			{
-				"name": "Set filename output",
+				"name": "Set OutpuFileName",
 				"type": "SetVariable",
 				"dependsOn": [],
 				"userProperties": [],
