@@ -137,7 +137,7 @@ In Azure Data Factory the data extraction is modeled using the `Copy Data` activ
 #### Copy Activity - Source Settings
 This relates to the SAP SuccessFactors oData API. Since we want to extract multiple SAP SuccessFactor Entities, the source (and also the sink) data set are parameterized. 
 * `BaseURL = https://api012.successfactors.eu/` or other relevant API access point provided by SAP
-* `RelativeURL = @concat('odata/v2/',dataset().TableName,'?$format=JSON')`. The `dataset().TableName` is the entityset to be extracted, eg. `User`, `EmpJob`, ... . This information is retrieved from a SQL Table.
+* `RelativeURL = @concat('odata/v2/',dataset().TableName,'?$format=JSON')`. The `dataset().TableName` is the entity set to be extracted, eg. `User`, `EmpJob`, ... . This information is retrieved from a SQL Table.
 * `Request Method = Get`
 * Additional Headers : here we need to add the `Authorization` header with the `Bearer` access token retrieved from the previous step.
 
