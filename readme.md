@@ -60,7 +60,7 @@ POST https://api012.successfactors.eu/oauth/idp
 Content-Type: application/x-www-form-urlencoded
 ```
 
->Note: Above sample code can be used in Visual Studio Code using the [REST Client Extension](https://marketplace.visualstudio.com/items?itemName=humao.rest-client). A complete http test script can be found [here](testscript\SuccessFactorsTest.http).  
+>Note: Above sample code can be used in Visual Studio Code using the [REST Client Extension](https://marketplace.visualstudio.com/items?itemName=humao.rest-client). A complete http test script can be found [here](testscript/SuccessFactorsTest.http).  
 
 
 In Azure Data Factory we can obtain the SAML assertion using a `Web` activity:
