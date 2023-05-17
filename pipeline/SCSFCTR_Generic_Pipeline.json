@@ -15,7 +15,7 @@
 				},
 				"userProperties": [],
 				"typeProperties": {
-					"url": "https://api012.successfactors.eu/oauth/idp",
+					"url": "INSERT_YOUR_TOKEN_OAUTH_URL",
 					"method": "POST",
 					"headers": {
 						"Content-Type": "application/x-www-form-urlencoded"
@@ -46,7 +46,7 @@
 				},
 				"userProperties": [],
 				"typeProperties": {
-					"url": "https://api012.successfactors.eu/oauth/token",
+					"url": "INSERT_YOUR_TOKEN_URL",
 					"method": "POST",
 					"headers": {
 						"Content-Type": "application/x-www-form-urlencoded"
@@ -325,7 +325,7 @@
 			},
 			"token_url": {
 				"type": "string",
-				"defaultValue": "https://api012.successfactors.eu/oauth/token"
+				"defaultValue": "INSERT_YOUR_TOKEN_URL"
 			},
 			"private_key": {
 				"type": "string",

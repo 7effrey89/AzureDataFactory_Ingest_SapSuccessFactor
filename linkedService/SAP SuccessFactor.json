@@ -1,11 +1,11 @@
 {
-	"name": "SAP SuccessFactor",
+	"name": "SAP SuccessFactors",
 	"type": "Microsoft.DataFactory/factories/linkedservices",
 	"properties": {
 		"annotations": [],
 		"type": "RestService",
 		"typeProperties": {
-			"url": "https://api012.successfactors.eu/",
+			"url": "https://<SuccessFactorsUrl>",
 			"enableServerCertificateValidation": true,
 			"authenticationType": "Anonymous"
 		}

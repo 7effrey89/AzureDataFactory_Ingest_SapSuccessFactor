@@ -1,8 +1,8 @@
 {
-	"name": "SapSuccessFactorTable",
+	"name": "SapSuccessFactorsTable",
 	"properties": {
 		"linkedServiceName": {
-			"referenceName": "SAP SuccessFactor",
+			"referenceName": "SAP SuccessFactors",
 			"type": "LinkedServiceReference"
 		},
 		"parameters": {
